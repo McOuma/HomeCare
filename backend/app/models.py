@@ -27,6 +27,7 @@ class User(db.Model, UserMixin):
 
 
 class Caregiver(User, db.Model):
+    """Model representing a caregiver in the system."""
     __tablename__ = 'caregiver'
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     first_name = db.Column(db.String(), nullable=False)
@@ -39,9 +40,11 @@ class Caregiver(User, db.Model):
     bookings = relationship('Booking', backref='caregiver')
 
     def get_url(self):
+        """Get the URL for accessing the caregiver's information."""
         return url_for('api.get_caregiver', id=self.id, _external=True)
 
     def export_data(self):
+        """Export data of the caregiver in a dictionary format."""
         return {
             'self_url': self.get_url(),
             'first_name': self.first_name,
@@ -53,6 +56,7 @@ class Caregiver(User, db.Model):
         }
 
     def import_data(self, data):
+        """Import data to update the caregiver's information."""
         try:
             self.first_name = data['first_name']
             self.last_name = data['last_name']
@@ -65,6 +69,7 @@ class Caregiver(User, db.Model):
 
 
 class Client(User, db.Model):
+    """Model representing clients in the system."""
     __tablename__ = 'client'
     id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     first_name = db.Column(db.String(), nullable=False)
@@ -77,9 +82,11 @@ class Client(User, db.Model):
     bookings = relationship('Booking', backref='client')
 
     def get_url(self):
+        """Get the URL for accessing the client's information."""
         return url_for('api.get_client', id=self.id, _external=True)
 
     def export_data(self):
+        """Export data of the client in a dictionary format."""
         return {
             'self_url': self.get_url(),
             'first_name': self.first_name,
@@ -91,6 +98,7 @@ class Client(User, db.Model):
         }
 
     def import_data(self, data):
+         """Import data to update the client's information."""
         try:
             self.first_name = data['first_name']
             self.last_name = data['last_name']
@@ -103,6 +111,7 @@ class Client(User, db.Model):
 
 
 class Service(db.Model):
+    """Model representing service entities in the system."""
     __tablename__ = 'service'
     id = db.Column(db.Integer, primary_key=True)
     service_type = db.Column(db.String(), nullable=False)
@@ -112,10 +121,12 @@ class Service(db.Model):
 
 
     def get_url(self):
+        """Get the URL for accessing the service's information."""
         return url_for('api.get_service', id=self.id, _external=True)
 
 
     def export_data(self):
+        """Export data of the service in a dictionary format."""
         return {
             'self_url': self.get_url(),
             'service_type': self.service_type,
@@ -126,6 +137,7 @@ class Service(db.Model):
 
 
     def import_data(self, data):
+        """Import data to update the service's information."""
         try:
             self.service_type = data['service_type']
             self.service_price = data['service_price']
@@ -137,6 +149,7 @@ class Service(db.Model):
 
 
 class Booking(db.Model):
+    """Model representing booking entities in the system."""
     __tablename__ = 'booking'
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
@@ -150,9 +163,11 @@ class Booking(db.Model):
     service = relationship('Service', backref='bookings')
 
     def get_url(self):
+         """Get the URL for accessing the booking's information."""
         return url_for('api.get_booking', id=self.id, _external=True)
 
     def export_data(self):
+        """Export data of the booking in a dictionary format."""
         return {
             'self_url': self.get_url(),
             'client_id': self.client_id,
@@ -163,6 +178,7 @@ class Booking(db.Model):
         }
 
     def import_data(self, data):
+        """Import data to update the booking's information."""
         try:
             self.client_id = data['client_id']
             self.service_id = data['service_id']
@@ -175,10 +191,12 @@ class Booking(db.Model):
 
     @property
     def duration(self):
+        """Calculate the duration of the booking."""
         return (self.end_date - self.start_date).days  # Assuming duration is in days
 
 
 class BookingManager(db.Model):
+     """Model representing booking manager entities in the system."""
     __tablename__ = 'booking_manager'
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
@@ -191,10 +209,12 @@ class BookingManager(db.Model):
 
 
     def get_url(self):
+        """Get the URL for accessing the booking manager's information."""
         return url_for('api.get_booking', id=self.id, _external=True)
 
 
     def export_data(self):
+        """Export data of the booking manager in a dictionary format."""
         return {
             'self_url': self.get_url(),
             'client_id': self.client_id,
@@ -205,6 +225,7 @@ class BookingManager(db.Model):
 
 
     def import_data(self, data):
+        """Import data to update the booking manager's information."""
         try:
             self.client_id = data['client_id']
             self.service_id = data['service_id']
@@ -217,6 +238,7 @@ class BookingManager(db.Model):
 
 
 class Review(db.Model):
+    """Model representing reviews in the system."""
     __tablename__ = 'review'
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
@@ -231,10 +253,12 @@ class Review(db.Model):
     booking = relationship('Booking', backref='reviews')
 
     def get_url(self):
+        """Get the URL for accessing the review's information."""
         return url_for('api.get_review', id=self.id, _external=True)
 
 
     def export_data(self):
+        """Export data of the review in a dictionary format."""
         return {
             'self_url': self.get_url(),
             'rating': self.rating,
@@ -246,6 +270,7 @@ class Review(db.Model):
 
 
     def import_data(self, data):
+        """Import data to update the review's information."""
         try:
             self.comment = data['comment']
             self.rating = data['rating']

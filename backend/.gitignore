@@ -1,0 +1,5 @@
+.venv
+.evn
+Makefile
+__pycache__
+.pytest_cache

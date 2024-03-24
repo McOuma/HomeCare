@@ -8,3 +8,5 @@ test:
 	pytest --cov=app tests/
 run:
 	python3 run.py
+sort:
+	isort ./app

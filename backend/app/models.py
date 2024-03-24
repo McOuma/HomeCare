@@ -4,6 +4,7 @@ Module defining database models for the application.
 
 # Standard library imports
 from datetime import datetime
+import secrets
 
 # Third-party imports
 from flask import url_for
@@ -12,7 +13,7 @@ from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
 # Local application imports
-from app import db
+from app import db ,login_manager
 from app.exceptions import ValidationError
 
 
@@ -32,6 +33,19 @@ class User(db.Model, UserMixin):
     def verify_password(self, password):
         """Verify the user's password."""
         return check_password_hash(self.password_hash, password)
+
+    def generate_token(self):
+        self.token = secrets.token_hex(16)
+        db.session.commit()
+        return self.token
+
+    @staticmethod
+    def verify_token(token):
+        return User.query.filter_by(token=token).first()
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
 
 class Caregiver(User, db.Model):
@@ -73,7 +87,7 @@ class Caregiver(User, db.Model):
             self.contact = data["contact"]
             self.national_id = data["national_id"]
         except KeyError as e:
-            raise ValidationError("Invalid caregiver data: missing " + str(e)) from e
+            raise ValidationError("Invalid caregiver data: missing " + e.args[0]) from e
         return self
 
 
@@ -116,7 +130,7 @@ class Client(User, db.Model):
             self.contact = data["contact"]
             self.national_id = data["national_id"]
         except KeyError as e:
-            raise ValidationError("Invalid client data: missing " + str(e)) from e
+            raise ValidationError("Invalid client data: missing " + e.args[0]) from e
         return self
 
 
@@ -151,7 +165,7 @@ class Service(db.Model):
             self.service_price = data["service_price"]
             self.description = data["description"]
         except KeyError as e:
-            raise ValidationError("Invalid service data: missing " + str(e)) from e
+            raise ValidationError("Invalid service data: missing " + e.args[0]) from e
         return self
 
 
@@ -194,7 +208,7 @@ class Booking(db.Model):
             self.end_date = datetime.fromisoformat(data["end_date"])
             self.status = data["status"]
         except KeyError as e:
-            raise ValidationError("Invalid booking data: missing " + str(e)) from e
+            raise ValidationError("Invalid booking data: missing " + e.args[0]) from e
         return self
 
     @property
@@ -238,7 +252,7 @@ class BookingManager(db.Model):
             self.booking_date = datetime.fromisoformat(data["booking_date"])
             self.status = data["status"]
         except KeyError as e:
-            raise ValidationError("Invalid booking data: missing " + str(e)) from e
+            raise ValidationError("Invalid booking data: missing " + e.args[0]) from e
         return self
 
 
@@ -286,5 +300,5 @@ class Review(db.Model):
             self.service_id = data["service_id"]
             self.booking_id = data["booking_id"]
         except KeyError as e:
-            raise ValidationError("Invalid review data: missing " + str(e)) from e
+            raise ValidationError("Invalid review data: missing " + e.args[0]) from e
         return self

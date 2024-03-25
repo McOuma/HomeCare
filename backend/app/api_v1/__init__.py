@@ -1,20 +1,23 @@
 from flask import Blueprint
-from app.auth import login_required, token_required
+from ..auth import auth
+from .decorators import etag, rate_limit
 
 api = Blueprint("api", __name__)
 
 
 @api.before_request
-@login_required
+@rate_limit(limit=5, period=15)
+@auth.login_required
 def before_request():
     """All routes in this blueprint require authentication."""
     pass
 
 
 @api.after_request
-def after_request(response):
-    pass
-
+@etag
+def after_request(rv):
+    """Generate an ETag header for all routes in this blueprint."""
+    return rv
 
 
 

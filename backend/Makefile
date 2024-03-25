@@ -10,3 +10,5 @@ run:
 	python3 run.py
 sort:
 	isort ./app
+security:
+	bandit -r ./app

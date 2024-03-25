@@ -1,7 +1,8 @@
-from flask import request,jsonify
-from . import api
+from flask import jsonify, request
+
 from .. import db
-from ..models import Review,Service
+from ..models import Review, Service
+from . import api
 from .decorators import json, paginate
 
 
@@ -16,7 +17,10 @@ def create_review():
     review.import_data(data)
     db.session.add(review)
     db.session.commit()
-    return jsonify({"message": "Review created successfully.", "review_id": review.id}), 201
+    return (
+        jsonify({"message": "Review created successfully.", "review_id": review.id}),
+        201,
+    )
 
 
 @api.route("/reviews/<int:review_id>/", methods=["GET"])
@@ -40,7 +44,6 @@ def update_review(review_id):
     return jsonify({"message": "Review updated successfully."})
 
 
-
 @api.route("/reviews/<int:review_id>/", methods=["DELETE"])
 def delete_review(review_id):
     """
@@ -50,7 +53,6 @@ def delete_review(review_id):
     db.session.delete(review)
     db.session.commit()
     return jsonify({"message": "Review deleted successfully."})
-
 
 
 @api.route("/reviews/<int:review_id>/average_rating/", methods=["GET"])
@@ -63,7 +65,6 @@ def get_review_average_rating(review_id):
     return jsonify({"average_rating": average_rating})
 
 
-
 @api.route("/reviews/<int:review_id>/client_name/", methods=["GET"])
 def get_review_client_name(review_id):
     """
@@ -72,7 +73,6 @@ def get_review_client_name(review_id):
     review = Review.query.get_or_404(review_id)
     client_name = review.get_client_name()
     return jsonify({"client_name": client_name})
-
 
 
 @api.route("/services/<int:service_id>/average_rating/", methods=["GET"])

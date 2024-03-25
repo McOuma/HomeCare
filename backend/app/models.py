@@ -6,6 +6,7 @@ Module defining database models for the application.
 from datetime import datetime, timedelta
 
 import jwt
+
 # from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 # Third-party imports
 from flask import current_app, url_for
@@ -358,7 +359,6 @@ class Review(db.Model):
         total_rating = sum(review.rating for review in self.service.reviews)
         total_reviews = self.service.reviews.count()
         return total_rating / total_reviews if total_reviews else 0
-
 
     def get_client_name(self):
         """

@@ -25,5 +25,4 @@ def after_request(rv):
     return rv
 
 
-from . import (booking, booking_manager, caregiver, client, errors, review,
-               service, user)
+from . import booking, booking_manager, caregiver, client, errors, review, service, user

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-import os
 import logging
+import os
+
 from flask import Flask, g
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
@@ -28,6 +29,7 @@ def create_app(config_name):
 
     # Register blueprints
     from app.api_v1 import api as api_blueprint
+
     app.register_blueprint(api_blueprint, url_prefix="/api/v1")
 
     # Register an after request handler

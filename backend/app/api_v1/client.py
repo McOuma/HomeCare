@@ -1,9 +1,11 @@
-from flask import request, jsonify
-from . import api
-from .. import db
-from ..models import Booking,BookingManager,Client,Review,Caregiver
-from .decorators import json, paginate
 from datetime import datetime, timedelta
+
+from flask import jsonify, request
+
+from .. import db
+from ..models import Booking, BookingManager, Caregiver, Client, Review
+from . import api
+from .decorators import json, paginate
 
 
 # Route to create a new client
@@ -16,8 +18,10 @@ def create_client():
     client.import_data(data)
     db.session.add(client)
     db.session.commit()
-    return jsonify({"message": "Client created successfully.", "client_id": client.id}), 201
-
+    return (
+        jsonify({"message": "Client created successfully.", "client_id": client.id}),
+        201,
+    )
 
 
 # Route to retrieve all clients
@@ -35,7 +39,6 @@ def get_client(client_id):
     return jsonify(client.export_data()), 200
 
 
-
 # Route to update a client's information
 @api.route("/clients/<int:client_id>/", methods=["PUT"])
 def update_client(client_id):
@@ -48,7 +51,6 @@ def update_client(client_id):
     return jsonify({"message": "Client updated successfully."}), 200
 
 
-
 # Route to delete a client
 @api.route("/clients/<int:client_id>/", methods=["DELETE"])
 def delete_client(client_id):
@@ -56,7 +58,6 @@ def delete_client(client_id):
     db.session.delete(client)
     db.session.commit()
     return jsonify({"message": "Client deleted successfully."}), 200
-
 
 
 # Route to create a new booking for a client
@@ -70,7 +71,10 @@ def create_booking(client_id):
     booking.import_data(data)
     db.session.add(booking)
     db.session.commit()
-    return jsonify({"message": "Booking created successfully.", "booking_id": booking.id}), 201
+    return (
+        jsonify({"message": "Booking created successfully.", "booking_id": booking.id}),
+        201,
+    )
 
 
 # Route to retrieve bookings associated with a client
@@ -91,7 +95,10 @@ def client_booking_manager(client_id):
             booking_manager_data = booking_manager.export_data()
             return jsonify(booking_manager_data), 200
         else:
-            return jsonify({"message": "Booking manager not found for this client."}), 404
+            return (
+                jsonify({"message": "Booking manager not found for this client."}),
+                404,
+            )
     elif request.method == "POST":
         data = request.get_json()
         if not data:
@@ -106,8 +113,9 @@ def client_booking_manager(client_id):
         db.session.commit()
         return jsonify({"message": "Booking manager updated successfully."}), 200
 
-
     # Client Review Routes
+
+
 @api.route("/clients/<int:client_id>/reviews/", methods=["POST"])
 def create_client_review(client_id):
     """
@@ -121,11 +129,15 @@ def create_client_review(client_id):
         return jsonify({"error": "Caregiver ID and rating are required."}), 400
     client = Client.query.get_or_404(client_id)
     caregiver = Caregiver.query.get_or_404(caregiver_id)
-    review = Review(client_id=client_id, caregiver_id=caregiver_id, rating=rating, comment=comment)
+    review = Review(
+        client_id=client_id, caregiver_id=caregiver_id, rating=rating, comment=comment
+    )
     db.session.add(review)
     db.session.commit()
-    return jsonify({"message": "Review created successfully.", "review_id": review.id}), 201
-
+    return (
+        jsonify({"message": "Review created successfully.", "review_id": review.id}),
+        201,
+    )
 
 
 @api.route("/clients/<int:client_id>/reviews/", methods=["GET"])
@@ -138,7 +150,6 @@ def get_client_reviews(client_id):
     return jsonify([review.export_data() for review in reviews])
 
 
-
 @api.route("/clients/<int:client_id>/reviews/<int:review_id>/", methods=["GET"])
 def get_client_review(client_id, review_id):
     """
@@ -148,7 +159,6 @@ def get_client_review(client_id, review_id):
     return jsonify(review.export_data())
 
 
-
 @api.route("/clients/<int:client_id>/reviews/<int:review_id>/", methods=["PUT"])
 def update_client_review(client_id, review_id):
     """
@@ -156,13 +166,12 @@ def update_client_review(client_id, review_id):
     """
     review = Review.query.filter_by(client_id=client_id, id=review_id).first_or_404()
     data = request.json
-    if 'rating' in data:
-        review.rating = data['rating']
-    if 'comment' in data:
-        review.comment = data['comment']
+    if "rating" in data:
+        review.rating = data["rating"]
+    if "comment" in data:
+        review.comment = data["comment"]
     db.session.commit()
     return jsonify({"message": "Review updated successfully."})
-
 
 
 @api.route("/clients/<int:client_id>/reviews/<int:review_id>/", methods=["DELETE"])

@@ -1,12 +1,12 @@
-import requests
 import json
+
+import requests
 from flask import jsonify, request
 
 from app import db
 from app.api_v1 import api
 from app.auth import login_required
 from app.models import User
-
 
 # # Send login request
 # url = "http://127.0.0.1:5000/login"
@@ -19,6 +19,7 @@ from app.models import User
 # }
 # response = requests.post(url, data=json.dumps(data), headers=headers)
 
+
 @api.route("/users", methods=["GET"])
 def get_all_users():
     users = User.query.all()
@@ -28,7 +29,9 @@ def get_all_users():
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "created_on": user.created_on.strftime("%Y-%m-%d %H:%M:%S")  # Convert datetime to string
+            "created_on": user.created_on.strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),  # Convert datetime to string
         }
         users_list.append(user_data)
     return jsonify(users_list), 200
@@ -37,7 +40,12 @@ def get_all_users():
 @api.route("/users/", methods=["POST"])
 def create_user():
     data = request.json
-    if not data or not data.get("username") or not data.get("email") or not data.get("password"):
+    if (
+        not data
+        or not data.get("username")
+        or not data.get("email")
+        or not data.get("password")
+    ):
         return jsonify({"message": "Missing required fields"}), 400
     username = data["username"]
     email = data["email"]
@@ -80,19 +88,22 @@ def delete_user(user_id):
     return jsonify({"message": "User deleted successfully"}), 200
 
 
-
 @api.route("/users/<int:user_id>", methods=["GET"])
 def get_user(user_id):
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
-    return jsonify({
-        "id": user.id,
-        "username": user.username,
-        "email": user.email,
-        "created_on": user.created_on.strftime("%Y-%m-%d %H:%M:%S")
-    }), 200
-
+    return (
+        jsonify(
+            {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "created_on": user.created_on.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+        ),
+        200,
+    )
 
 
 @api.route("/login", methods=["POST"])
@@ -106,9 +117,7 @@ def login():
     if not user or not user.verify_password(password):
         return jsonify({"message": "Invalid username or password"}), 401
     token = user.generate_token()
-    return jsonify({"message": "Login successful", "token": token.decode('utf-8')}), 200
-
-
+    return jsonify({"message": "Login successful", "token": token.decode("utf-8")}), 200
 
 
 @api.route("/logout", methods=["POST"])

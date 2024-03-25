@@ -23,6 +23,8 @@ def login():
     return jsonify({"message": "Login successful", "token": token}), 200
 
 
+
+
 @api.route("/logout", methods=["POST"])
 @login_required
 def logout():

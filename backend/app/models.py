@@ -350,3 +350,18 @@ class Review(db.Model):
         except KeyError as e:
             raise ValidationError("Invalid review data: missing " + e.args[0]) from e
         return self
+
+    def calculate_average_rating(self):
+        """
+        Calculate the average rating of all reviews for a specific service.
+        """
+        total_rating = sum(review.rating for review in self.service.reviews)
+        total_reviews = self.service.reviews.count()
+        return total_rating / total_reviews if total_reviews else 0
+
+
+    def get_client_name(self):
+        """
+        Get the full name of the client who made the review.
+        """
+        return f"{self.client.first_name} {self.client.last_name}"

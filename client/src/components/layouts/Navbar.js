@@ -1,4 +1,6 @@
+// Navbar.js
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 
 export default class Navbar extends Component {
   render() {
@@ -6,14 +8,14 @@ export default class Navbar extends Component {
       <div>
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
           <div className="container">
-            <a className="navbar-brand" href="/">
+            <Link className="navbar-brand" to="/">
               {this.props.title}
-            </a>
+            </Link>
             <button
               className="navbar-toggler"
               type="button"
               data-toggle="collapse"
-              data-target="/navbarNav"
+              data-target="#navbarNav"
               aria-controls="navbarNav"
               aria-expanded="false"
               aria-label="Toggle navigation"
@@ -23,28 +25,28 @@ export default class Navbar extends Component {
             <div className="collapse navbar-collapse" id="navbarNav">
               <ul className="navbar-nav ml-auto">
                 <li className="nav-item">
-                  <a className="nav-link" href="/">
+                  <Link className="nav-link" to="/">
                     {this.props.homePageText}
-                  </a>
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="/">
-                   {this.props.dashBoard}
-                  </a>
+                  <Link className="nav-link" to="/dashboard">
+                    {this.props.dashBoard}
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="/">
+                  <Link className="nav-link" to="/register">
                     {this.props.registerText}
-                  </a>
+                  </Link>
                 </li>
                 <li className="nav-item">
-                  <a className="nav-link" href="/">
+                  <Link className="nav-link" to="/login">
                     {this.props.loginText}
-                  </a>
+                  </Link>
                 </li>
                 <li className="nav-item">
                   <a className="nav-link" href="/">
-                    {this.props.logoutTest}
+                    {this.props.logoutText}
                   </a>
                 </li>
               </ul>
@@ -57,11 +59,10 @@ export default class Navbar extends Component {
 }
 
 Navbar.defaultProps = {
-    title: "HomeCare",
-    homePageText: "Home",
-    dashBoard: "Dashboard",
-    registerText: "Register",
-    loginText: "Login",
-    logoutTest: "Logout"
-
+  title: "HomeCare",
+  homePageText: "Home",
+  dashBoard: "Dashboard",
+  registerText: "Register",
+  loginText: "Login",
+  logoutText: "Logout"
 };

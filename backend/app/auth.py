@@ -11,12 +11,10 @@ token_auth = HTTPTokenAuth()
 
 @auth.verify_password
 def verify_password(username_or_token, password):
-    # Check if the username_or_token is a token
     user = User.verify_token(username_or_token)
     if not user:
-        # If not a token, assume it's a username and password
         user = User.query.filter_by(username=username_or_token).first()
-        if not user or not user.check_password(password):
+        if not user or not user.verify_password(password):
             return False
     g.user = user
     return True
@@ -62,7 +60,7 @@ def token_required(f):
         token = request.headers.get("Authorization")
         if not token or not token.startswith("Bearer "):
             return unauthorized()
-        token = token.split(" ")[1]  # Extract token without the 'Bearer ' prefix
+        token = token.split(" ")[1]
         user = User.verify_token(token)
         if not user:
             return unauthorized()

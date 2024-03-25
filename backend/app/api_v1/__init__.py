@@ -5,6 +5,10 @@ from .decorators import etag, rate_limit
 
 api = Blueprint("api", __name__)
 
+# @api.route('/')
+# def home_page():
+#     return "<h1>Welcome Home</h1>"
+
 
 @api.before_request
 @rate_limit(limit=5, period=15)

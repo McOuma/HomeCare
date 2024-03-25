@@ -6,7 +6,6 @@ from .decorators import json, paginate
 from datetime import datetime, timedelta
 
 @api.route("/bookings/", methods=["GET"])
-@paginate("bookings")
 def get_bookings():
     return Booking.query
 

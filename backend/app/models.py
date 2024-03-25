@@ -3,27 +3,24 @@ Module defining database models for the application.
 """
 
 # Standard library imports
-from datetime import datetime
-import jwt
 from datetime import datetime, timedelta
 
-
-
+import jwt
+# from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 # Third-party imports
-from flask import url_for
+from flask import current_app, url_for
 from flask_login import UserMixin
 from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash
-# from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask import current_app
 
 # Local application imports
-from app import db ,login_manager
+from app import db, login_manager
 from app.exceptions import ValidationError
 
 
 class User(db.Model, UserMixin):
     """Model representing a user in the system."""
+
     __tablename__ = "user"
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String(), nullable=False)
@@ -33,15 +30,13 @@ class User(db.Model, UserMixin):
     # role = db.Column(db.String(), nullable=False)
     created_on = db.Column(db.DateTime, default=datetime.utcnow)
 
-
-     # Define a relationship with Caregiver
+    # Define a relationship with Caregiver
     caregiver = relationship("Caregiver", backref="user", uselist=False)
     # Define a relationship with Client
     client = relationship("Client", backref="user", uselist=False)
 
     # Define a relationship with Booking
     bookings = relationship("Booking", backref="user", lazy="dynamic")
-
 
     def set_password(self, password):
         """Set the password for the user."""
@@ -52,29 +47,26 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password_hash, password)
 
     def generate_token(self, expiration=3600):
-        payload = {'id': self.id, 'exp': datetime.utcnow() + timedelta(seconds=expiration)}
-        token = jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')
-        return token.decode('utf-8')
+        payload = {
+            "id": self.id,
+            "exp": datetime.utcnow() + timedelta(seconds=expiration),
+        }
+        token = jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm="HS256")
+        return token.decode("utf-8")
 
     @staticmethod
     def verify_token(token):
         try:
-            payload = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-            return payload['id']
+            payload = jwt.decode(
+                token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
+            )
+            return payload["id"]
         except jwt.ExpiredSignatureError:
             # Token has expired
             return None
         except jwt.InvalidTokenError:
             # Token is invalid
             return None
-
-
-
-
-
-
-
-
 
     # def generate_token(self):
     #     s = Serializer(current_app.config['SECRET_KEY'], expires_in=3600)
@@ -90,7 +82,6 @@ class User(db.Model, UserMixin):
     #         return None
     #     return User.query.get(data['id'])
 
-
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
@@ -98,6 +89,7 @@ class User(db.Model, UserMixin):
 
 class Caregiver(db.Model):
     """Model representing a caregiver in the system."""
+
     __tablename__ = "caregiver"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -109,8 +101,6 @@ class Caregiver(db.Model):
     created_on = db.Column(db.DateTime, default=datetime.utcnow)
 
     bookings = db.relationship("Booking", backref="caregiver", lazy="dynamic")
-
-
 
     def get_url(self):
         """Get the URL for accessing the caregiver's information."""
@@ -143,6 +133,7 @@ class Caregiver(db.Model):
 
 class Client(db.Model):
     """Model representing clients in the system."""
+
     __tablename__ = "client"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -187,13 +178,13 @@ class Client(db.Model):
 
 class Service(db.Model):
     """Model representing service entities in the system."""
+
     __tablename__ = "service"
     id = db.Column(db.Integer, primary_key=True)
     service_type = db.Column(db.String(), nullable=False)
     service_price = db.Column(db.Float(), nullable=False)
     description = db.Column(db.String(), nullable=False)
     created_on = db.Column(db.DateTime, default=datetime.utcnow)
-
 
     def get_url(self):
         """Get the URL for accessing the service's information."""
@@ -222,6 +213,7 @@ class Service(db.Model):
 
 class Booking(db.Model):
     """Model representing booking entities in the system."""
+
     __tablename__ = "booking"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -235,9 +227,9 @@ class Booking(db.Model):
 
     # Adjust the relationship to users
     # Correct the backref in the Booking model
-    user_relation = relationship("User", back_populates="bookings", overlaps="booking,user")
-
-
+    user_relation = relationship(
+        "User", back_populates="bookings", overlaps="booking,user"
+    )
 
     def get_url(self):
         """Get the URL for accessing the booking's information."""
@@ -274,6 +266,7 @@ class Booking(db.Model):
 
 class BookingManager(db.Model):
     """Model representing booking manager entities in the system."""
+
     __tablename__ = "booking_manager"
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.Integer, db.ForeignKey("client.id"), nullable=False)
@@ -287,7 +280,7 @@ class BookingManager(db.Model):
 
     def get_url(self):
         """Get the URL for accessing the booking manager's information."""
-        return url_for("api.get_booking", id=self.id, _external=True)
+        return url_for("api.get_booking_manager", id=self.id, _external=True)
 
     def export_data(self):
         """Export data of the booking manager in a dictionary format."""
@@ -313,6 +306,7 @@ class BookingManager(db.Model):
 
 class Review(db.Model):
     """Model representing reviews in the system."""
+
     __tablename__ = "review"
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.Integer, db.ForeignKey("client.id"))

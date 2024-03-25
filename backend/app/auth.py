@@ -1,10 +1,13 @@
 from functools import wraps
-from flask import request, jsonify,g
-from flask_httpauth import HTTPBasicAuth,HTTPTokenAuth
+
+from flask import g, jsonify, request
+from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth
+
 from .models import User
 
 auth = HTTPBasicAuth()
 token_auth = HTTPTokenAuth()
+
 
 @auth.verify_password
 def verify_password(username_or_token, password):
@@ -18,12 +21,14 @@ def verify_password(username_or_token, password):
     g.user = user
     return True
 
+
 @auth.error_handler
 def unauthorized():
-    response = jsonify({'message': 'Unauthorized access'})
+    response = jsonify({"message": "Unauthorized access"})
     response.status_code = 401
-    response.headers['WWW-Authenticate'] = 'Basic realm="Login Required"'
+    response.headers["WWW-Authenticate"] = 'Basic realm="Login Required"'
     return response
+
 
 def login_required(f):
     @wraps(f)
@@ -31,6 +36,7 @@ def login_required(f):
         if not auth.current_user:
             return unauthorized()
         return f(*args, **kwargs)
+
     return decorated_function
 
 
@@ -45,7 +51,7 @@ def verify_token(token):
 
 @token_auth.error_handler
 def token_unauthorized():
-    response = jsonify({'message': 'Unauthorized access'})
+    response = jsonify({"message": "Unauthorized access"})
     response.status_code = 401
     return response
 
@@ -53,13 +59,14 @@ def token_unauthorized():
 def token_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        token = request.headers.get('Authorization')
-        if not token or not token.startswith('Bearer '):
+        token = request.headers.get("Authorization")
+        if not token or not token.startswith("Bearer "):
             return unauthorized()
-        token = token.split(' ')[1]  # Extract token without the 'Bearer ' prefix
+        token = token.split(" ")[1]  # Extract token without the 'Bearer ' prefix
         user = User.verify_token(token)
         if not user:
             return unauthorized()
         g.user = user
         return f(*args, **kwargs)
+
     return decorated_function
